@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="https://npmcdn.com/babel-core@5.8.38/browser.min.js"></script>
+	<link href="https://fonts.googleapis.com/css?family=Anton|Roboto" rel="stylesheet">
+	<script src="/socket.io/socket.io.js"></script>
+    <script src="clientScript.js"></script>
+	<link rel="stylesheet" href="clientStyle.css">
+</head>
+<body>
+	<div id="login">
+		<form>
+			Name:<br>
+			<input id="username" type="text" name="name" maxlength="10"><br>
+			Color:<br>
+			<select id="color" name="color">
+				<option value="#32936f" selected>Green</option>
+				<option value="#ffbf00">Yellow</option>
+				<option value="#660000">Red</option>
+				<option value="#0267c1">Blue</option>
+				<option value="#e83f6f">Pink</option>
+				<option value="#4c5c68">Grey</option>
+				<option value="#564138">Brown</option>
+				<option value="#f39237">Orange</option>
+			</select>
+			<input id="connect" type='button' value='connect'/>
+		</form>
+	</div>
+	<div id="game">
+		<p>W A S and D to move. Collect the purple pellets to grow, and eat other players when you are larger than them.</p>
+		<canvas id="mainCanvas" width="1280" height="720" style="border:1px solid #000000;"></canvas>
+	</div>
+	<p id="disclaimer">Sean Coffey 2017</p>
+</body>
+</html>
