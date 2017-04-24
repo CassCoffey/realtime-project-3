@@ -45,7 +45,7 @@ const connectSocket = (e) => {
 		
 		setup();
 		setInterval(update, 1000 / 60);
-		setInterval(draw, 1000 / 60);
+		setInterval(draw, 1000 / 30);
 	});
 	
 	socket.on('draw', (data) => {
@@ -57,13 +57,15 @@ const connectSocket = (e) => {
 const draw = (data) => {
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 	
-	for (let i = 0; i < pellets.length; i++)
+    for (let i = 0; i < pellets.length; i++)
 	{
 		let pellet = pellets[i];
 		ctx.fillStyle = pellet.color;
-		ctx.fillRect(pellet.x, pellet.y, pellet.width, pellet.height);
+		ctx.beginPath();
+		ctx.arc(pellet.x + 5, pellet.y + 5, pellet.radius, 0, 2*Math.PI);
+		ctx.fill();
 	}
-	
+
 	let keys = Object.keys(draws);
 	
 	for (let i = 0; i < keys.length; i++)
@@ -86,21 +88,18 @@ const draw = (data) => {
 			// Lerp the server info, since it's only sent 30fps
 			let changeX = drawCall.x - oldDrawCall.x;
 			let changeY = drawCall.y - oldDrawCall.y;
-			let changeR = drawCall.radius - oldDrawCall.radius;
 			
 			let lerpPosX = oldDrawCall.x + (changeX * percent);
 			let lerpPosY = oldDrawCall.y + (changeY * percent);
-			let lerpRadius = oldDrawCall.radius + (changeR * percent);
 			
 			ctx.fillStyle = drawCall.color;
-			ctx.beginPath();
-			ctx.arc(lerpPosX, lerpPosY, lerpRadius,0,2*Math.PI);
-			ctx.fill();
-			
-			ctx.fillStyle = "white";
-			ctx.font = (lerpRadius / 2) + "px Anton";
-			ctx.textAlign = "center";
-			ctx.strokeText(drawCall.user, lerpPosX, lerpPosY + (lerpRadius/8));
+			ctx.fillRect(lerpPosX, lerpPosY, 10, 10);
+
+			for (let k = 0; k < drawCall.segments.length; k++)
+			{
+				const segment = drawCall.segments[k];
+				ctx.fillRect(segment.x, segment.y, 10, 10);
+			}
 		}
 	}
 }
@@ -133,19 +132,19 @@ const update = () => {
 const checkKeys = () => {
 	if (myKeys.keydown[myKeys.KEYBOARD.KEY_A])
 	{
-		socket.emit('move', { x: -3, y: 0});
+		socket.emit('move', { x: -1, y: 0});
 	}
 	if (myKeys.keydown[myKeys.KEYBOARD.KEY_D])
 	{
-		socket.emit('move', { x: 3, y: 0});
+		socket.emit('move', { x: 1, y: 0});
 	}
 	if (myKeys.keydown[myKeys.KEYBOARD.KEY_S])
 	{
-		socket.emit('move', { x: 0, y: 3});
+		socket.emit('move', { x: 0, y: 1});
 	}
 	if (myKeys.keydown[myKeys.KEYBOARD.KEY_W])
 	{
-		socket.emit('move', { x: 0, y: -3});
+		socket.emit('move', { x: 0, y: -1});
 	}
 }
 

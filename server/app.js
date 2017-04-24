@@ -35,10 +35,47 @@ const io = socketio(app);
 const users = {};
 const pellets = [];
 const MAX_PELLETS = 50;
-const MAX_RADIUS = 200;
-const MIN_RADIUS = 10;
-const MAX_SPEED = 3;
-const MIN_SPEED = 0.6;
+const SPACE_SIZE = 10;
+
+// Moves users and checks collisions
+const update = () => {
+  const keys = Object.keys(users);
+  for (let i = 0; i < keys.length; i++) {
+    const user = users[keys[i]];
+    
+    // pellet collision
+    for (let j = 0; j < pellets.length; j++) {
+      const pellet = pellets[j];
+
+      if (pellet.x === user.x && pellet.y === user.y) {
+        pellets.splice(j, 1);
+        
+        user.numSegs++;
+      }
+    }
+
+    user.prevX = user.x;
+    user.prevY = user.y;
+    user.x += (user.xVel * SPACE_SIZE);
+    user.y += (user.yVel * SPACE_SIZE);
+
+    const tempSeg =
+      { x: user.prevX,
+        y: user.prevY };
+
+    user.segments.push(tempSeg);
+
+    if (user.segments.length > user.numSegs)
+    {
+      user.segments.splice(0, 1)
+    }
+
+    const time = new Date().getTime();
+    user.lastUpdate = time;
+  }
+
+  io.sockets.in('room1').emit('draw', { users, pellets });
+};
 
 // Creates pellets per update
 const addPellets = () => {
@@ -49,90 +86,12 @@ const addPellets = () => {
   const numPellets = Math.floor(Math.random() * 10);
   for (let i = 0; i < numPellets; i++) {
     const tempPellet =
-      { x: Math.floor(Math.random() * (1280 - 10)),
-        y: Math.floor(Math.random() * (720 - 10)),
-        width: 10,
-        height: 10,
+      { x: Math.round(Math.floor((Math.random() * (1280 - 10)) + 50) / 10) * 10,
+        y: Math.round(Math.floor((Math.random() * (720 - 10)) + 50) / 10) * 10,
+        radius: 5,
         color: '#7325f3' };
     pellets.push(tempPellet);
   }
-};
-
-// Moves users and checks collisions
-const update = () => {
-  const keys = Object.keys(users);
-  for (let i = 0; i < keys.length; i++) {
-    const user = users[keys[i]];
-
-    if (user.y < 0 + user.radius) {
-      user.y = 0 + user.radius;
-    }
-    if (user.y > 720 - user.radius) {
-      user.y = 720 - user.radius;
-    }
-    if (user.x < 0 + user.radius) {
-      user.x = 0 + user.radius;
-    }
-    if (user.x > 1280 - user.radius) {
-      user.x = 1280 - user.radius;
-    }
-
-    // pellet collision
-    for (let j = 0; j < pellets.length; j++) {
-      const pellet = pellets[j];
-
-      const dx = user.x - (pellet.x + (pellet.width / 2));
-      const dy = user.y - (pellet.y + (pellet.height / 2));
-      const distance = Math.sqrt((dx * dx) + (dy * dy));
-
-      if (distance < user.radius + (pellet.width / 2)) {
-        pellets.splice(j, 1);
-        if (user.radius < MAX_RADIUS) {
-          user.radius += 2;
-        }
-        if (user.speed > MIN_SPEED) {
-          user.speed -= 0.1;
-        }
-      }
-    }
-
-    // User Collision
-    for (let j = 0; j < keys.length; j++) {
-      const otherUser = users[keys[j]];
-
-      const dx = user.x - otherUser.x;
-      const dy = user.y - otherUser.y;
-      const distance = Math.sqrt((dx * dx) + (dy * dy));
-
-      if (user !== otherUser && distance < user.radius + otherUser.radius) {
-        if (user.radius > otherUser.radius && otherUser.radius > MIN_RADIUS) {
-          if (user.radius < MAX_RADIUS) {
-            user.radius += 1;
-          }
-          if (user.speed > MIN_SPEED) {
-            user.speed -= 0.05;
-          }
-        } else if (user.radius < otherUser.radius && user.radius > MIN_RADIUS) {
-          user.radius -= 1;
-
-          if (user.speed < MAX_SPEED) {
-            user.speed += 0.05;
-          }
-        } else {
-          const angle = Math.atan2(dy, dx);
-          const nx = Math.cos(angle) * user.speed;
-          const ny = Math.sin(angle) * user.speed;
-          user.x += nx;
-          user.y += ny;
-        }
-      }
-    }
-
-    const time = new Date().getTime();
-    user.lastUpdate = time;
-  }
-
-  io.sockets.in('room1').emit('draw', { users, pellets });
 };
 
 // Called when a socket joins
@@ -142,34 +101,28 @@ const onJoined = (sock) => {
     socket.join('room1');
     // init user
     const time = new Date().getTime();
-    const x = Math.floor((Math.random() * (1280 - 50)) + 50);
-    const y = Math.floor((Math.random() * (720 - 50)) + 50);
+    const x = Math.round(Math.floor((Math.random() * (1280 - 50)) + 50) / 10) * 10;
+    const y = Math.round(Math.floor((Math.random() * (720 - 50)) + 50) / 10) * 10;
     socket.user = data.user;
     users[socket.user] =
     { user: data.user,
       lastUpdate: time,
       x,
       y,
-      radius: 12,
-      speed: 4,
-      color: data.color };
+      prevX: x,
+      prevY: y,
+      xVel: 1,
+      yVel: 0,
+      color: data.color,
+      numSegs: 0,
+      segments: []
+     };
     socket.emit('connected', null);
   });
-  // Normalize and apply movement
+  // apply movement
   socket.on('move', (data) => {
-    // snippet from http://stackoverflow.com/questions/3592040/javascript-function-that-works-like-actionscripts-normalize1
-    const x = data.x;
-    const y = data.y;
-    if ((x === 0 && y === 0) || users[socket.user].speed === 0) {
-      users[socket.user].x += 0;
-      users[socket.user].y += 0;
-    } else {
-      const angle = Math.atan2(y, x);
-      const nx = Math.cos(angle) * users[socket.user].speed;
-      const ny = Math.sin(angle) * users[socket.user].speed;
-      users[socket.user].x += nx;
-      users[socket.user].y += ny;
-    }
+    users[socket.user].xVel = data.x;
+    users[socket.user].yVel = data.y;
   });
 };
 
@@ -188,5 +141,5 @@ io.sockets.on('connection', (socket) => {
 });
 
 // Set update frequencies
-setInterval(update, 1000 / 30);
+setInterval(update, 500);
 setInterval(addPellets, 5000);
