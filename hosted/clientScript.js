@@ -135,7 +135,7 @@ const draw = (data) => {
 		const drawCall = draws[keys[i]];
 		const oldDrawCall = oldDraws[keys[i]];
 		
-		if (drawCall != null && oldDrawCall != null) {
+		if (drawCall !== null && oldDrawCall !== null) {
 			const time = new Date().getTime();
 			
 			let totalTime = drawCall.lastUpdate - oldDrawCall.lastUpdate;
@@ -159,7 +159,19 @@ const draw = (data) => {
 			for (let k = 0; k < drawCall.segments.length; k++)
 			{
 				const segment = drawCall.segments[k];
+
 				ctx.fillRect(segment.x, segment.y, 10, 10);
+
+				if (k === 0 && oldDrawCall.segments[0] !== null)
+				{
+					let segChangeX = segment.x - oldDrawCall.segments[0].x;
+					let segChangeY = segment.y - oldDrawCall.segments[0].y;
+
+					let segLerpX = oldDrawCall.segments[0].x + (segChangeX * percent);
+					let segLerpY = oldDrawCall.segments[0].y + (segChangeY * percent);
+
+					ctx.fillRect(segLerpX, segLerpY, 10, 10);
+				}
 			}
 		}
 	}
