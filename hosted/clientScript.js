@@ -7,6 +7,8 @@ var ctx;
 var user;
 var color;
 
+var currentRoom = "none";
+
 let socket;
 let oldDraws = {};
 let draws = {};
@@ -23,35 +25,91 @@ myKeys.KEYBOARD = Object.freeze({
 });
 myKeys.keydown = [];
 
-// Connect to the server
-const connectSocket = (e) => {
-	socket = io.connect();
-	
+const setupRoom = () => {
 	user = document.querySelector("#username").value;
 	if (!user) {
 			user = 'unknown';
 	}
 	
 	color = document.querySelector("#color").value;
-	
-	socket.on('connect', () => {
-		console.log('connecting');
-		socket.emit('join', { user, color});
-	});
-	
-	socket.on('connected', () => {				
+
+	document.querySelector("#login").style.display = "none";
+	document.querySelector("#game").style.display = "none";
+	document.querySelector("#rooms").style.display = "none";
+	document.querySelector("#setup").style.display = "block";
+}
+
+const startHosting = () => {
+	let roomName = document.querySelector("#roomName").value;
+	let maxPlayers = document.querySelector("#maxPlayers").value;
+	let maxPellets = document.querySelector("#maxPellets").value;
+
+	socket.emit('createRoom', { roomName, maxPlayers, maxPellets, user, color });
+
+	socket.on('createdRoom', () => {
 		document.querySelector("#login").style.display = "none";
 		document.querySelector("#game").style.display = "block";
-		
-		setup();
+		document.querySelector("#rooms").style.display = "none";
+		document.querySelector("#setup").style.display = "none";
+
 		setInterval(update, 1000 / 60);
 		setInterval(draw, 1000 / 30);
 	});
-	
-	socket.on('draw', (data) => {
-		handleMessage(data);
+}
+
+const joinRoom = () => {
+
+	console.log("Joining " + currentRoom);
+
+	socket.emit('joinRoom', { currentRoom, user, color });
+
+	socket.on('joinedRoom', () => {
+		document.querySelector("#login").style.display = "none";
+		document.querySelector("#game").style.display = "block";
+		document.querySelector("#rooms").style.display = "none";
+		document.querySelector("#setup").style.display = "none";
+
+		setInterval(update, 1000 / 60);
+		setInterval(draw, 1000 / 30);
 	});
-};
+}
+
+const getServerList = () => {
+	user = document.querySelector("#username").value;
+	if (!user) {
+			user = 'unknown';
+	}
+	
+	color = document.querySelector("#color").value;
+
+	socket.emit('getRooms', null);
+	document.querySelector("#login").style.display = "none";
+	document.querySelector("#game").style.display = "none";
+	document.querySelector("#rooms").style.display = "block";
+	document.querySelector("#setup").style.display = "none";
+
+	socket.on('recieveRooms', (data) => {
+		populateList(data);
+	});
+}
+
+const populateList = (data) => {
+	let keys = Object.keys(data);
+
+	for (let i = 0; i < keys.length; i++)
+	{
+		var room = data[keys[i]];
+		var roomButton = document.createElement("BUTTON");
+		roomButton.room = room;
+		roomButton.onclick = function () {
+			currentRoom = this.room.name;
+			joinRoom();
+		};
+		var t = document.createTextNode(room.name + ", " + room.currUsers + "/" + room.maxUsers + " users");
+		roomButton.appendChild(t);
+		document.querySelector("#rooms").appendChild(roomButton);
+	}
+}
 
 // Draw users and pellets based on server feedback
 const draw = (data) => {
@@ -79,11 +137,10 @@ const draw = (data) => {
 			let totalTime = drawCall.lastUpdate - oldDrawCall.lastUpdate;
 			let currTime = time - lastUpdate;
 			let percent = currTime / totalTime;
+
+			if (drawCall.died) percent = 1;
 			
-			if (percent > 1)
-			{
-				percent = 1;
-			}
+			if (percent > 1) percent = 1;
 			
 			// Lerp the server info, since it's only sent 30fps
 			let changeX = drawCall.x - oldDrawCall.x;
@@ -104,24 +161,12 @@ const draw = (data) => {
 	}
 }
 
-// Set up event listeners
-const setup = () => {
-	// event listeners
-	window.addEventListener("keydown",function(e){
-		myKeys.keydown[e.keyCode] = true;
-	});
-		
-	window.addEventListener("keyup",function(e){
-		myKeys.keydown[e.keyCode] = false;
-	});
-}
-
 // Update draw list based on the server's info
 const handleMessage = (data) => {
 	lastUpdate = new Date().getTime();
 	oldDraws = draws;
-	draws = data.users;
-	pellets = data.pellets;
+	draws = data.drawCalls;
+	pellets = data.drawPellets;
 }
 
 const update = () => {
@@ -151,8 +196,27 @@ const checkKeys = () => {
 const init = () => {
 	canvas = document.getElementById("mainCanvas");
 	ctx = canvas.getContext("2d");
-	const connect = document.querySelector("#connect");
-	connect.addEventListener('click', connectSocket);
+	const join = document.querySelector("#join");
+	const host = document.querySelector("#host");
+	const start = document.querySelector("#startHosting")
+	join.addEventListener('click', getServerList);
+	host.addEventListener('click', setupRoom);
+	start.addEventListener('click', startHosting);
+
+	// event listeners
+	window.addEventListener("keydown",function(e){
+		myKeys.keydown[e.keyCode] = true;
+	});
+		
+	window.addEventListener("keyup",function(e){
+		myKeys.keydown[e.keyCode] = false;
+	});
+
+	socket = io.connect();
+
+	socket.on('draw', (data) => {
+		handleMessage(data);
+	});
 };
 
 window.onload = init;
