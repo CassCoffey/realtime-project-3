@@ -1,9 +1,9 @@
-const SPACE_SIZE = 10;
+const SPACE_SIZE = 16;
 
 const killUser = (data) => {
   const user = data;
-  user.x = Math.round(Math.floor((Math.random() * (1280 - 50)) + 50) / 10) * 10;
-  user.y = Math.round(Math.floor((Math.random() * (720 - 50)) + 50) / 10) * 10;
+  user.x = Math.round(Math.floor((Math.random() * (1280 - 50)) + 50) / SPACE_SIZE) * SPACE_SIZE;
+  user.y = Math.round(Math.floor((Math.random() * (720 - 50)) + 50) / SPACE_SIZE) * SPACE_SIZE;
   user.numSegs = 0;
   user.segments = [];
   user.died = true;
@@ -41,6 +41,7 @@ const update = (room, io) => {
 
       if (user !== other && user.x === other.x && user.y === other.y) {
         killUser(user);
+        killUser(other);
         break;
       }
 
@@ -88,9 +89,9 @@ const addPellets = (room) => {
   const numPellets = Math.floor(Math.random() * 7);
   for (let i = 0; i < numPellets; i++) {
     const tempPellet =
-      { x: Math.round(Math.floor((Math.random() * (1280 - 10)) + 50) / 10) * 10,
-        y: Math.round(Math.floor((Math.random() * (720 - 10)) + 50) / 10) * 10,
-        radius: 5,
+      { x: Math.round(Math.floor((Math.random() * (1280 - 10)) + 50) / SPACE_SIZE) * SPACE_SIZE,
+        y: Math.round(Math.floor((Math.random() * (720 - 10)) + 50) / SPACE_SIZE) * SPACE_SIZE,
+        radius: (SPACE_SIZE / 2),
         color: '#7325f3' };
     room.pellets.push(tempPellet);
   }
@@ -100,8 +101,8 @@ const initUser = (sock, userRoom, username, color) => {
   const room = userRoom;
   const socket = sock;
   const time = new Date().getTime();
-  const x = Math.round(Math.floor((Math.random() * (1280 - 50)) + 50) / 10) * 10;
-  const y = Math.round(Math.floor((Math.random() * (720 - 50)) + 50) / 10) * 10;
+  const x = Math.round(Math.floor((Math.random() * (1280 - 50)) + 50) / SPACE_SIZE) * SPACE_SIZE;
+  const y = Math.round(Math.floor((Math.random() * (720 - 50)) + 50) / SPACE_SIZE) * SPACE_SIZE;
   socket.user = username;
   socket.room = room;
   room.users[socket.user] =
@@ -113,6 +114,7 @@ const initUser = (sock, userRoom, username, color) => {
     prevY: y,
     xVel: 1,
     yVel: 0,
+    size: SPACE_SIZE,
     color,
     numSegs: 0,
     segments: [],

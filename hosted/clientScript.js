@@ -124,7 +124,7 @@ const draw = (data) => {
 		let pellet = pellets[i];
 		ctx.fillStyle = pellet.color;
 		ctx.beginPath();
-		ctx.arc(pellet.x + 5, pellet.y + 5, pellet.radius, 0, 2*Math.PI);
+		ctx.arc(pellet.x + pellet.radius, pellet.y + pellet.radius, pellet.radius, 0, 2*Math.PI);
 		ctx.fill();
 	}
 
@@ -154,13 +154,13 @@ const draw = (data) => {
 			let lerpPosY = oldDrawCall.y + (changeY * percent);
 			
 			ctx.fillStyle = drawCall.color;
-			ctx.fillRect(lerpPosX, lerpPosY, 10, 10);
+			ctx.fillRect(lerpPosX, lerpPosY, drawCall.size, drawCall.size);
 
 			for (let k = 0; k < drawCall.segments.length; k++)
 			{
 				const segment = drawCall.segments[k];
 
-				ctx.fillRect(segment.x, segment.y, 10, 10);
+				ctx.fillRect(segment.x, segment.y, drawCall.size, drawCall.size);
 
 				if (k === 0 && oldDrawCall.segments[0] !== null)
 				{
@@ -170,7 +170,7 @@ const draw = (data) => {
 					let segLerpX = oldDrawCall.segments[0].x + (segChangeX * percent);
 					let segLerpY = oldDrawCall.segments[0].y + (segChangeY * percent);
 
-					ctx.fillRect(segLerpX, segLerpY, 10, 10);
+					ctx.fillRect(segLerpX, segLerpY, drawCall.size, drawCall.size);
 				}
 			}
 		}
