@@ -22,6 +22,10 @@ myKeys.KEYBOARD = Object.freeze({
 	"KEY_A": 65,
 	"KEY_S": 83,
 	"KEY_D": 68,
+	"KEY_UP": 38,
+	"KEY_DOWN": 40,
+	"KEY_LEFT": 37,
+	"KEY_RIGHT": 39,
 });
 myKeys.keydown = [];
 
@@ -175,19 +179,19 @@ const update = () => {
 
 // Move based on user input
 const checkKeys = () => {
-	if (myKeys.keydown[myKeys.KEYBOARD.KEY_A])
+	if (myKeys.keydown[myKeys.KEYBOARD.KEY_A] || myKeys.keydown[myKeys.KEYBOARD.KEY_LEFT])
 	{
 		socket.emit('move', { x: -1, y: 0});
 	}
-	if (myKeys.keydown[myKeys.KEYBOARD.KEY_D])
+	if (myKeys.keydown[myKeys.KEYBOARD.KEY_D] || myKeys.keydown[myKeys.KEYBOARD.KEY_RIGHT])
 	{
 		socket.emit('move', { x: 1, y: 0});
 	}
-	if (myKeys.keydown[myKeys.KEYBOARD.KEY_S])
+	if (myKeys.keydown[myKeys.KEYBOARD.KEY_S] || myKeys.keydown[myKeys.KEYBOARD.KEY_DOWN])
 	{
 		socket.emit('move', { x: 0, y: 1});
 	}
-	if (myKeys.keydown[myKeys.KEYBOARD.KEY_W])
+	if (myKeys.keydown[myKeys.KEYBOARD.KEY_W] || myKeys.keydown[myKeys.KEYBOARD.KEY_UP])
 	{
 		socket.emit('move', { x: 0, y: -1});
 	}
