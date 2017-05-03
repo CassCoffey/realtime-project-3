@@ -35,31 +35,28 @@ const io = socketio(app);
 
 
 const rooms = {};
-var updateInt = 0;
+let updateInt = 0;
 
-rooms["Default"] =
-    { name: "Default",
-      users: {},
-      currUsers: 0,
-      maxUsers: 10,
-      pellets: [],
-      maxPellets: 50,
-      private: false
-    };
+rooms.Default =
+{ name: 'Default',
+  users: {},
+  currUsers: 0,
+  maxUsers: 10,
+  pellets: [],
+  maxPellets: 50,
+  private: false,
+};
 
 // Update Function
 const update = () => {
+  const keys = Object.keys(rooms);
 
-  let keys = Object.keys(rooms);
-
-	for (let i = 0; i < keys.length; i++)
-	{
-    let curRoom = rooms[keys[i]];
+  for (let i = 0; i < keys.length; i++) {
+    const curRoom = rooms[keys[i]];
     gameLogic.update(curRoom, io);
 
     // pellets are updated less frequently
-    if (updateInt === 15)
-    {
+    if (updateInt === 15) {
       gameLogic.addPellets(curRoom);
     }
   }
@@ -74,7 +71,7 @@ const onJoined = (sock) => {
   const socket = sock;
 
   socket.on('getRooms', () => {
-    socket.emit('recieveRooms', rooms)
+    socket.emit('recieveRooms', rooms);
   });
 
   socket.on('createRoom', (data) => {
@@ -82,10 +79,10 @@ const onJoined = (sock) => {
     { name: data.roomName,
       users: {},
       currUsers: 0,
-      maxUsers: parseInt(data.maxPlayers),
+      maxUsers: parseInt(data.maxPlayers, 10),
       pellets: [],
-      maxPellets: parseInt(data.maxPellets),
-      private: false
+      maxPellets: parseInt(data.maxPellets, 10),
+      private: false,
     };
 
     socket.join(data.roomName);
@@ -100,12 +97,9 @@ const onJoined = (sock) => {
     const room = rooms[data.currentRoom];
 
     // room full
-    if (room.currUsers === room.maxUsers)
-    {
+    if (room.currUsers === room.maxUsers) {
       // tell them
-    }
-    // success
-    else {
+    } else {
       gameLogic.initUser(socket, room, data.user, data.color);
 
       socket.emit('joinedRoom', null);
@@ -118,4 +112,4 @@ io.sockets.on('connection', (socket) => {
 });
 
 // init game
-setInterval( update, 300);
+setInterval(update, 300);

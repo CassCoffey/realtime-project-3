@@ -1,6 +1,19 @@
-const socketio = require('socket.io');
-
 const SPACE_SIZE = 10;
+
+const killUser = (data) => {
+  const user = data;
+  user.x = Math.round(Math.floor((Math.random() * (1280 - 50)) + 50) / 10) * 10;
+  user.y = Math.round(Math.floor((Math.random() * (720 - 50)) + 50) / 10) * 10;
+  user.numSegs = 0;
+  user.segments = [];
+  user.died = true;
+};
+
+const handleMovement = (sock, data) => {
+  const socket = sock;
+  socket.room.users[socket.user].xVel = data.x;
+  socket.room.users[socket.user].yVel = data.y;
+};
 
 // Moves users and checks collisions
 const update = (room, io) => {
@@ -26,7 +39,7 @@ const update = (room, io) => {
     for (let j = 0; j < keys.length; j++) {
       const other = room.users[keys[j]];
 
-      if (user != other && user.x === other.x && user.y === other.y) {
+      if (user !== other && user.x === other.x && user.y === other.y) {
         killUser(user);
         break;
       }
@@ -61,18 +74,10 @@ const update = (room, io) => {
     user.lastUpdate = time;
   }
 
-  let drawCalls = room.users;
-  let drawPellets = room.pellets;
+  const drawCalls = room.users;
+  const drawPellets = room.pellets;
   io.sockets.in(room.name).emit('draw', { drawCalls, drawPellets });
 };
-
-const killUser = (user) => {
-  user.x = Math.round(Math.floor((Math.random() * (1280 - 50)) + 50) / 10) * 10;
-  user.y = Math.round(Math.floor((Math.random() * (720 - 50)) + 50) / 10) * 10; 
-  user.numSegs = 0;
-  user.segments = [];
-  user.died = true;
-}
 
 // Creates pellets per update
 const addPellets = (room) => {
@@ -91,7 +96,9 @@ const addPellets = (room) => {
   }
 };
 
-const initUser = (socket, room, username, color) => {
+const initUser = (sock, userRoom, username, color) => {
+  const room = userRoom;
+  const socket = sock;
   const time = new Date().getTime();
   const x = Math.round(Math.floor((Math.random() * (1280 - 50)) + 50) / 10) * 10;
   const y = Math.round(Math.floor((Math.random() * (720 - 50)) + 50) / 10) * 10;
@@ -106,11 +113,11 @@ const initUser = (socket, room, username, color) => {
     prevY: y,
     xVel: 1,
     yVel: 0,
-    color: color,
+    color,
     numSegs: 0,
     segments: [],
-    died: false
-  };  
+    died: false,
+  };
   room.currUsers++;
 
   socket.on('disconnect', () => {
@@ -121,12 +128,7 @@ const initUser = (socket, room, username, color) => {
   socket.on('move', (data) => {
     handleMovement(socket, data);
   });
-}
-
-const handleMovement = (socket, data) => {
-    socket.room.users[socket.user].xVel = data.x;
-    socket.room.users[socket.user].yVel = data.y;
-}
+};
 
 module.exports.update = update;
 module.exports.initUser = initUser;
