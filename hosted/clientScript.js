@@ -66,9 +66,6 @@ const startHosting = () => {
 }
 
 const joinRoom = () => {
-
-	console.log("Joining " + currentRoom);
-
 	socket.emit('joinRoom', { currentRoom, user, color });
 
 	socket.on('joinedRoom', () => {
@@ -145,7 +142,7 @@ const createParticle = (data) => {
 		var tempParticle = { 
 			x: data.x,
 			y: data.y,
-			radius: 8,
+			radius: 6,
 			radiusDecay: 0.1,
 			minRadius: 0.2,
 			xVel: (Math.random() * 12) - 6,
@@ -215,7 +212,7 @@ const draw = (data) => {
 		const drawCall = draws[keys[i]];
 		const oldDrawCall = oldDraws[keys[i]];
 		
-		if (drawCall !== null && oldDrawCall !== null) {
+		if (drawCall !== null && oldDrawCall !== undefined && oldDrawCall !== null ) {
 			const time = new Date().getTime();
 			
 			let totalTime = drawCall.lastUpdate - oldDrawCall.lastUpdate;
@@ -242,7 +239,7 @@ const draw = (data) => {
 
 				ctx.fillRect(segment.x, segment.y, drawCall.size, drawCall.size);
 
-				if (k === 0 && oldDrawCall.segments[0] !== null)
+				if (k === 0 && oldDrawCall.segments[0] !== undefined)
 				{
 					let segChangeX = segment.x - oldDrawCall.segments[0].x;
 					let segChangeY = segment.y - oldDrawCall.segments[0].y;

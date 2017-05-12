@@ -11,6 +11,10 @@ const killUser = (data) => {
 
 const handleMovement = (sock, data) => {
   const socket = sock;
+  if (socket.room.users[socket.user].prevXVel === -data.x || socket.room.users[socket.user].prevYVel === -data.y)
+  {
+    return;
+  }
   socket.room.users[socket.user].xVel = data.x;
   socket.room.users[socket.user].yVel = data.y;
 };
@@ -59,6 +63,8 @@ const update = (room, io) => {
 
     user.prevX = user.x;
     user.prevY = user.y;
+    user.prevXVel = user.xVel;
+    user.prevYVel = user.yVel;
     user.x += (user.xVel * SPACE_SIZE);
     user.y += (user.yVel * SPACE_SIZE);
 
@@ -115,6 +121,8 @@ const initUser = (sock, userRoom, username, color, io) => {
     prevY: y,
     xVel: 1,
     yVel: 0,
+    prevXVel: 1,
+    prevYVel: 0,
     size: SPACE_SIZE,
     color,
     numSegs: 0,
