@@ -29,6 +29,7 @@ const update = (room, io) => {
       const pellet = room.pellets[j];
 
       if (pellet.x === user.x && pellet.y === user.y) {
+        io.sockets.in(room.name).emit('createParticle', { x: pellet.x + pellet.radius, y: pellet.y + pellet.radius });
         room.pellets.splice(j, 1);
 
         user.numSegs++;
@@ -92,7 +93,7 @@ const addPellets = (room) => {
       { x: Math.round(Math.floor((Math.random() * (1280 - 10)) + 50) / SPACE_SIZE) * SPACE_SIZE,
         y: Math.round(Math.floor((Math.random() * (720 - 10)) + 50) / SPACE_SIZE) * SPACE_SIZE,
         radius: (SPACE_SIZE / 2),
-        color: '#7325f3' };
+        color: '#88498f' };
     room.pellets.push(tempPellet);
   }
 };

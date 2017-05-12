@@ -2,27 +2,27 @@
 <html lang="en">
 <head>
     <script src="https://npmcdn.com/babel-core@5.8.38/browser.min.js"></script>
-	<link href="https://fonts.googleapis.com/css?family=Anton|Roboto" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css?family=Oswald" rel="stylesheet"> 
+	<link href="https://fonts.googleapis.com/css?family=Fjalla+One" rel="stylesheet"> 
 	<script src="/socket.io/socket.io.js"></script>
     <script src="clientScript.js"></script>
 	<link rel="stylesheet" href="clientStyle.css">
 </head>
 <body>
+	<h2>CoolSnake</h2>
 	<div id="login">
+		<p>Welcome to CoolSnake! Play the classic game Snake online with your friends!</p>
 		<p>In the future, pay for private rooms and special color schemes.</p>
 		<form>
 			Name:<br>
 			<input id="username" type="text" name="name" maxlength="10"><br>
 			Color:<br>
 			<select id="color" name="color">
-				<option value="#32936f" selected>Green</option>
-				<option value="#ffbf00">Yellow</option>
-				<option value="#660000">Red</option>
-				<option value="#0267c1">Blue</option>
-				<option value="#e83f6f">Pink</option>
-				<option value="#4c5c68">Grey</option>
-				<option value="#564138">Brown</option>
-				<option value="#f39237">Orange</option>
+				<option value="#68d19a" selected>Green</option>
+				<option value="#fac56c">Yellow</option>
+				<option value="#ef7161">Red</option>
+				<option value="#50afd9">Blue</option>
+				<option value="#f7aef8">Pink</option>
 			</select>
 			<input id="join" type='button' value='join'/>
 			<input id="host" type='button' value='host'/>
@@ -34,7 +34,7 @@
 	<div id="setup">
 		<p>Enter a name and settings for your room.</p>
 		<form>
-			Name:<br>
+			Room Name:<br>
 			<input id="roomName" type="text" name="roomName" maxlength="10"><br>
 			Max Players (between 1 and 20):<br>
 			<input id="maxPlayers" type="number" name="maxPlayers" min="1" max="20" value="10"><br>
@@ -44,8 +44,7 @@
 		</form>
 	</div>
 	<div id="game">
-		<p>W A S and D to move. Collect the purple pellets to grow.</p>
-		<canvas id="mainCanvas" width="1280" height="720" style="border:1px solid #000000;"></canvas>
+		<canvas id="mainCanvas" width="1280" height="720"></canvas>
 	</div>
 	<p id="disclaimer">Sean Coffey 2017</p>
 </body>

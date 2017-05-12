@@ -12,7 +12,8 @@ var currentRoom = "none";
 let socket;
 let oldDraws = {};
 let draws = {};
-let pellets= [];
+let pellets = [];
+let particles = [];
 let lastUpdate = 0;
 
 var myKeys = {};
@@ -28,6 +29,8 @@ myKeys.KEYBOARD = Object.freeze({
 	"KEY_RIGHT": 39,
 });
 myKeys.keydown = [];
+
+var audio = new Audio('collect.wav');
 
 const setupRoom = () => {
 	user = document.querySelector("#username").value;
@@ -109,16 +112,47 @@ const populateList = (data) => {
 			currentRoom = this.room.name;
 			joinRoom();
 		};
-		var t = document.createTextNode(room.name + ", " + room.currUsers + "/" + room.maxUsers + " users");
-		roomButton.appendChild(t);
+		var nameText = document.createElement("p");
+		nameText.innerHTML = room.name;
+		nameText.className = "listRoomName";
+		var usersText = document.createElement("p");
+		usersText.innerHTML = room.currUsers + "/" + room.maxUsers + " users";
+		usersText.className = "listRoomUsers";
+		roomButton.appendChild(nameText);
+		roomButton.appendChild(usersText);
 		document.querySelector("#rooms").appendChild(roomButton);
 	}
+}
+
+const createParticle = (data) => {
+	for (var i = 0; i < 8; i++) {
+		var tempParticle = { 
+			x: data.x,
+			y: data.y,
+			radius: 4,
+			radiusDecay: 0.1,
+			minRadius: 0.2,
+			xVel: (Math.random() * 12) - 6,
+			yVel: (Math.random() * 12) - 6,
+			accel: 0.85,
+			life: 60,
+			color: '#88498f'
+		};
+
+		particles.push(tempParticle);
+	}
+
+	audio.pause();
+	audio.currentTime = 0;
+
+	audio.play();
 }
 
 // Draw users and pellets based on server feedback
 const draw = (data) => {
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 	
+	// Draw Pellets
     for (let i = 0; i < pellets.length; i++)
 	{
 		let pellet = pellets[i];
@@ -128,6 +162,36 @@ const draw = (data) => {
 		ctx.fill();
 	}
 
+	// Draw Particles
+	for (let i = 0; i < particles.length; i++) {
+		const particle = particles[i];
+
+		if (particle.life <= 0)
+		{
+			particles.splice(i, 1);
+		}
+		else
+		{
+			ctx.fillStyle = particle.color;
+			ctx.beginPath();
+			ctx.arc(particle.x, particle.y, particle.radius, 0, 2*Math.PI);
+			ctx.fill();
+
+			particle.x += particle.xVel;
+			particle.y += particle.yVel;
+			particle.xVel *= particle.accel;
+			particle.yVel *= particle.accel;
+			if (particle.radius >= particle.minRadius)
+			{
+				particle.radius -= particle.radiusDecay;
+			} else {
+				particle.radius = particle.minRadius;
+			}
+			particle.life--;
+		}
+	}
+
+	// Draw Players
 	let keys = Object.keys(draws);
 	
 	for (let i = 0; i < keys.length; i++)
@@ -232,6 +296,10 @@ const init = () => {
 
 	socket.on('draw', (data) => {
 		handleMessage(data);
+	});
+
+	socket.on('createParticle', (data) => {
+		createParticle(data);
 	});
 };
 

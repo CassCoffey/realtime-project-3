@@ -8,9 +8,15 @@ const port = process.env.PORT || process.env.NODE_PORT || 3000;
 const index = fs.readFileSync(`${__dirname}/../hosted/index.html`);
 const cssFile = fs.readFileSync(`${__dirname}/../hosted/clientStyle.css`);
 const scriptFile = fs.readFileSync(`${__dirname}/../hosted/clientScript.js`);
+const audioFile = fs.readFileSync(`${__dirname}/../hosted/collect.wav`);
 
 const onRequest = (request, response) => {
   switch (request.url) {
+    case '/collect.wav':
+      response.writeHead(200, { 'Content-Type': 'audio/wav' });
+      response.write(audioFile);
+      break;
+
     case '/clientStyle.css':
       response.writeHead(200, { 'Content-Type': 'text/css' });
       response.write(cssFile);
