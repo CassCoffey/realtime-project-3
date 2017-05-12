@@ -31,8 +31,9 @@ canvas {
 #playerList {
 	position: absolute;
 	left: 0;
-	width: 250px;
-	top: 250px;
+	width: 15vw;
+	top: 25vh;
+	font-size: 3vmin;
 	padding-bottom: 15px;
 	background-color: #7f7f7f;
 }

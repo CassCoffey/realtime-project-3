@@ -99,6 +99,19 @@ const onJoined = (sock) => {
     gameLogic.initUser(socket, rooms[data.roomName], data.user, data.color, io);
 
     socket.emit('createdRoom', null);
+
+    const players = [];
+    const keys = Object.keys(socket.room.users);
+    for (let i = 0; i < keys.length; i++) {
+      const curPlayer = socket.room.users[keys[i]];
+      const player = {
+        name: curPlayer.user,
+        color: curPlayer.color,
+      };
+      players.push(player);
+    }
+
+    socket.emit('populatePlayers', { players });
   });
 
   socket.on('joinRoom', (data) => {
