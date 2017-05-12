@@ -50,6 +50,7 @@ rooms.Default =
   maxUsers: 5,
   pellets: [],
   maxPellets: 30,
+  segPerPel: parseInt(data.segPerPel, 10),
   private: false,
 };
 

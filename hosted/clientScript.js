@@ -145,7 +145,7 @@ const createParticle = (data) => {
 		var tempParticle = { 
 			x: data.x,
 			y: data.y,
-			radius: 4,
+			radius: 8,
 			radiusDecay: 0.1,
 			minRadius: 0.2,
 			xVel: (Math.random() * 12) - 6,
