@@ -98,7 +98,7 @@ const addPellets = (room) => {
   }
 };
 
-const initUser = (sock, userRoom, username, color) => {
+const initUser = (sock, userRoom, username, color, io) => {
   const room = userRoom;
   const socket = sock;
   const time = new Date().getTime();
@@ -126,6 +126,18 @@ const initUser = (sock, userRoom, username, color) => {
   socket.on('disconnect', () => {
     socket.room.currUsers--;
     delete socket.room.users[socket.user];
+
+    let players = [];
+    const keys = Object.keys(socket.room.users);
+    for (let i = 0; i < keys.length; i++) {
+      const curPlayer = socket.room.users[keys[i]];
+      var player = {
+          name: curPlayer.user,
+          color: curPlayer.color
+      }
+      players.push(player);
+    }
+    io.sockets.in(socket.room.name).emit('populatePlayers', { players });
   });
 
   socket.on('move', (data) => {

@@ -93,7 +93,7 @@ const onJoined = (sock) => {
 
     socket.join(data.roomName);
 
-    gameLogic.initUser(socket, rooms[data.roomName], data.user, data.color);
+    gameLogic.initUser(socket, rooms[data.roomName], data.user, data.color, io);
 
     socket.emit('createdRoom', null);
   });
@@ -106,9 +106,21 @@ const onJoined = (sock) => {
     if (room.currUsers === room.maxUsers) {
       // tell them
     } else {
-      gameLogic.initUser(socket, room, data.user, data.color);
+      gameLogic.initUser(socket, room, data.user, data.color, io);
 
       socket.emit('joinedRoom', null);
+
+      let players = [];
+      const keys = Object.keys(socket.room.users);
+      for (let i = 0; i < keys.length; i++) {
+        const curPlayer = socket.room.users[keys[i]];
+        var player = {
+          name: curPlayer.user,
+          color: curPlayer.color
+        }
+        players.push(player);
+      }
+      io.sockets.in(socket.room.name).emit('populatePlayers', { players });
     }
   });
 };

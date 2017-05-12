@@ -124,6 +124,21 @@ const populateList = (data) => {
 	}
 }
 
+const populatePlayers = (data) => {
+	document.querySelector("#playerList").innerHTML = "";
+	var playerHeader = document.createElement("h3");
+	playerHeader.innerHTML = "Players:";
+	document.querySelector("#playerList").appendChild(playerHeader);
+
+	for (var i = 0; i < data.players.length; i++)
+	{
+		var playerName = document.createElement("p");
+		playerName.innerHTML = data.players[i].name;
+		playerName.style.backgroundColor = data.players[i].color;
+		document.getElementById("playerList").appendChild(playerName);
+	}
+}
+
 const createParticle = (data) => {
 	for (var i = 0; i < 8; i++) {
 		var tempParticle = { 
@@ -300,6 +315,10 @@ const init = () => {
 
 	socket.on('createParticle', (data) => {
 		createParticle(data);
+	});
+
+	socket.on('populatePlayers', (data) => {
+		populatePlayers(data);
 	});
 };
 
