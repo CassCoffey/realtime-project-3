@@ -110,14 +110,14 @@ const onJoined = (sock) => {
 
       socket.emit('joinedRoom', null);
 
-      let players = [];
+      const players = [];
       const keys = Object.keys(socket.room.users);
       for (let i = 0; i < keys.length; i++) {
         const curPlayer = socket.room.users[keys[i]];
-        var player = {
+        const player = {
           name: curPlayer.user,
-          color: curPlayer.color
-        }
+          color: curPlayer.color,
+        };
         players.push(player);
       }
       io.sockets.in(socket.room.name).emit('populatePlayers', { players });

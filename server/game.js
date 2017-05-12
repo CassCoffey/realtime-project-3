@@ -90,8 +90,8 @@ const addPellets = (room) => {
   const numPellets = Math.floor(Math.random() * 7);
   for (let i = 0; i < numPellets; i++) {
     const tempPellet =
-      { x: Math.round(Math.floor((Math.random() * (1280 - 10)) + 50) / SPACE_SIZE) * SPACE_SIZE,
-        y: Math.round(Math.floor((Math.random() * (720 - 10)) + 50) / SPACE_SIZE) * SPACE_SIZE,
+      { x: Math.round(Math.floor((Math.random() * (1280 - SPACE_SIZE))) / SPACE_SIZE) * SPACE_SIZE,
+        y: Math.round(Math.floor((Math.random() * (720 - SPACE_SIZE))) / SPACE_SIZE) * SPACE_SIZE,
         radius: (SPACE_SIZE / 2),
         color: '#88498f' };
     room.pellets.push(tempPellet);
@@ -102,8 +102,8 @@ const initUser = (sock, userRoom, username, color, io) => {
   const room = userRoom;
   const socket = sock;
   const time = new Date().getTime();
-  const x = Math.round(Math.floor((Math.random() * (1280 - 50)) + 50) / SPACE_SIZE) * SPACE_SIZE;
-  const y = Math.round(Math.floor((Math.random() * (720 - 50)) + 50) / SPACE_SIZE) * SPACE_SIZE;
+  const x = Math.round(Math.floor((Math.random() * (1280 - SPACE_SIZE))) / SPACE_SIZE) * SPACE_SIZE;
+  const y = Math.round(Math.floor((Math.random() * (720 - SPACE_SIZE))) / SPACE_SIZE) * SPACE_SIZE;
   socket.user = username;
   socket.room = room;
   room.users[socket.user] =
@@ -127,14 +127,14 @@ const initUser = (sock, userRoom, username, color, io) => {
     socket.room.currUsers--;
     delete socket.room.users[socket.user];
 
-    let players = [];
+    const players = [];
     const keys = Object.keys(socket.room.users);
     for (let i = 0; i < keys.length; i++) {
       const curPlayer = socket.room.users[keys[i]];
-      var player = {
-          name: curPlayer.user,
-          color: curPlayer.color
-      }
+      const player = {
+        name: curPlayer.user,
+        color: curPlayer.color,
+      };
       players.push(player);
     }
     io.sockets.in(socket.room.name).emit('populatePlayers', { players });
