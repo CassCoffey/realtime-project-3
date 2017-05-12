@@ -1,4 +1,4 @@
-const SPACE_SIZE = 16;
+const SPACE_SIZE = 20;
 
 const killUser = (data) => {
   const user = data;
@@ -32,7 +32,7 @@ const update = (room, io) => {
         io.sockets.in(room.name).emit('createParticle', { x: pellet.x + pellet.radius, y: pellet.y + pellet.radius });
         room.pellets.splice(j, 1);
 
-        user.numSegs++;
+        user.numSegs += room.segPerPel;
       }
     }
 

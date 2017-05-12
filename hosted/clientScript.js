@@ -50,8 +50,9 @@ const startHosting = () => {
 	let roomName = document.querySelector("#roomName").value;
 	let maxPlayers = document.querySelector("#maxPlayers").value;
 	let maxPellets = document.querySelector("#maxPellets").value;
+	let segPerPel = document.querySelector("#segPerPel").value;
 
-	socket.emit('createRoom', { roomName, maxPlayers, maxPellets, user, color });
+	socket.emit('createRoom', { roomName, maxPlayers, maxPellets, segPerPel, user, color });
 
 	socket.on('createdRoom', () => {
 		document.querySelector("#login").style.display = "none";

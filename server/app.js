@@ -47,9 +47,9 @@ rooms.Default =
 { name: 'Default',
   users: {},
   currUsers: 0,
-  maxUsers: 10,
+  maxUsers: 5,
   pellets: [],
-  maxPellets: 50,
+  maxPellets: 30,
   private: false,
 };
 
@@ -88,6 +88,7 @@ const onJoined = (sock) => {
       maxUsers: parseInt(data.maxPlayers, 10),
       pellets: [],
       maxPellets: parseInt(data.maxPellets, 10),
+      segPerPel: parseInt(data.segPerPel, 10),
       private: false,
     };
 
@@ -130,4 +131,4 @@ io.sockets.on('connection', (socket) => {
 });
 
 // init game
-setInterval(update, 300);
+setInterval(update, 400);
