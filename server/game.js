@@ -11,12 +11,12 @@ const killUser = (data) => {
 
 const handleMovement = (sock, data) => {
   const socket = sock;
-  if (socket.room.users[socket.user].prevXVel === -data.x || socket.room.users[socket.user].prevYVel === -data.y)
-  {
+  const user = socket.room.users[socket.user];
+  if (user.prevXVel === -data.x || user.prevYVel === -data.y) {
     return;
   }
-  socket.room.users[socket.user].xVel = data.x;
-  socket.room.users[socket.user].yVel = data.y;
+  user.xVel = data.x;
+  user.yVel = data.y;
 };
 
 // Moves users and checks collisions
