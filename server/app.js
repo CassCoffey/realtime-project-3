@@ -43,6 +43,7 @@ const io = socketio(app);
 const rooms = {};
 let updateInt = 0;
 
+// Set up a default room, if no one wants to host
 rooms.Default =
 { name: 'Default',
   users: {},

@@ -1,5 +1,6 @@
 const SPACE_SIZE = 20;
 
+// Resets the user's information
 const killUser = (data) => {
   const user = data;
   user.x = Math.round(Math.floor((Math.random() * (1280 - 50)) + 50) / SPACE_SIZE) * SPACE_SIZE;
@@ -9,6 +10,7 @@ const killUser = (data) => {
   user.died = true;
 };
 
+// Handles user input, doesn't allow users to do 180 degree turns (so they can't kill themselves)
 const handleMovement = (sock, data) => {
   const socket = sock;
   const user = socket.room.users[socket.user];
@@ -104,6 +106,7 @@ const addPellets = (room) => {
   }
 };
 
+// Sets up a new user/socket
 const initUser = (sock, userRoom, username, color, io) => {
   const room = userRoom;
   const socket = sock;

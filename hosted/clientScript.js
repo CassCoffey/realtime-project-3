@@ -32,6 +32,7 @@ myKeys.keydown = [];
 
 var audio = new Audio('collect.wav');
 
+// Switch to the setup view
 const setupRoom = () => {
 	user = document.querySelector("#username").value;
 	if (!user) {
@@ -46,6 +47,7 @@ const setupRoom = () => {
 	document.querySelector("#setup").style.display = "block";
 }
 
+// Send room info to server, then join the new game
 const startHosting = () => {
 	let roomName = document.querySelector("#roomName").value;
 	let maxPlayers = document.querySelector("#maxPlayers").value;
@@ -65,6 +67,7 @@ const startHosting = () => {
 	});
 }
 
+// Join the room selected from the list
 const joinRoom = () => {
 	socket.emit('joinRoom', { currentRoom, user, color });
 
@@ -79,6 +82,7 @@ const joinRoom = () => {
 	});
 }
 
+// Retreive a list of rooms from the server
 const getServerList = () => {
 	user = document.querySelector("#username").value;
 	if (!user) {
@@ -98,6 +102,7 @@ const getServerList = () => {
 	});
 }
 
+// Populate the list of rooms
 const populateList = (data) => {
 	let keys = Object.keys(data);
 
@@ -122,6 +127,7 @@ const populateList = (data) => {
 	}
 }
 
+// Populate the list of players
 const populatePlayers = (data) => {
 	document.querySelector("#playerList").innerHTML = "";
 	var playerHeader = document.createElement("h3");
@@ -137,6 +143,7 @@ const populatePlayers = (data) => {
 	}
 }
 
+// RPC for making little particle/sound effects when getting a pellet
 const createParticle = (data) => {
 	for (var i = 0; i < 8; i++) {
 		var tempParticle = { 
